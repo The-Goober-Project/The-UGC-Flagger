@@ -1,7 +1,9 @@
+import TitleCard from "./components/title";
+
 function App() {
   return (
-    <main>
-      <h1>The UGC Tracker</h1>
+    <main className="flex justify-center items-center h-screen">
+      <TitleCard/>
     </main>
   );
 }
