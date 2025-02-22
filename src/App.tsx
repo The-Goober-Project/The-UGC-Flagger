@@ -1,3 +1,4 @@
+import Input from "./components/input";
 import Link from "./components/link";
 import TitleCard from "./components/title";
 
