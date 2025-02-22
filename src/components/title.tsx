@@ -1,6 +1,12 @@
-export default function TitleCard(){
+import { cn } from "../lib/utils"
+
+interface Props {
+	className?: string
+}
+
+export default function TitleCard({className = ""}: Props){
 	return (
-		<div className="flex space-x-4 bg-gray-200 rounded-md justify-center text-center items-center w-1/2 h-1/6">
+		<div className={cn("flex space-x-4 bg-gray-200 rounded-md justify-center text-center items-center w-1/2 h-1/6", className)}>
 			<img
 				src="https://cdn.thegoober.xyz/files/logo.png"
 				alt="The Goober Project Logo"
