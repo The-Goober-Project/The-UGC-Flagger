@@ -1,11 +1,13 @@
-import Button from "./components/button";
-import Input from "./components/input";
-import Link from "./components/link";
-import TitleCard from "./components/title";
+import { route } from "preact-router";
+import Button from "../components/button";
+import Input from "../components/input";
+import Link from "../components/link";
+import TitleCard from "../components/title";
 
-import {useState} from "preact/hooks"
+import { useState } from "preact/hooks"
 
-function App() {
+function Searcher() {
+  const [reviewMode, setReviewing] = useState(true)
   const [query, setQuery] = useState("")
 
   return (
@@ -20,15 +22,25 @@ function App() {
         <Input
           placeholder="Search Query"
           disabled={false}
-          onChange={(e) => {if(e.target) setQuery((e.target as HTMLInputElement).value)}}
+          onChange={(e) => { if (e.target) setQuery((e.target as HTMLInputElement).value) }}
           value={query}
         />
 
-        <Button
-          variant="Primary"
-        >
-          Start Search
-        </Button>
+        <div className="flex flex-col w-full items-center justify-center text-center mx-auto">
+          <Button
+            variant="Primary"
+            className="w-9/12 mb-2"
+          >
+            Start Search
+          </Button>
+          <Button
+            variant="Casual"
+            className="w-4/12"
+            onClick={() => route("/settings")}
+          >
+            Settings
+          </Button>
+        </div>
         <p className="text-gray-400 text-xs">You agree that you may be rate-limited from ROBLOX's API while using this.</p>
       </div>
 
@@ -43,4 +55,4 @@ function App() {
   );
 }
 
-export default App;
+export default Searcher;
