@@ -6,7 +6,7 @@ interface Props {
 
 export default function TitleCard({className = ""}: Props){
 	return (
-		<div className={cn("flex space-x-4 bg-gray-200 rounded-md justify-center text-center items-center w-1/2 h-1/6", className)}>
+		<div className={cn("flex space-x-4 bg-gray-100 rounded-md justify-center text-center items-center w-1/2 h-1/6", className)}>
 			<img
 				src="https://cdn.thegoober.xyz/files/logo.png"
 				alt="The Goober Project Logo"
