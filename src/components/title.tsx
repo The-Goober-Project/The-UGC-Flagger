@@ -10,7 +10,7 @@ export default function TitleCard({className = ""}: Props){
 			<img
 				src="https://cdn.thegoober.xyz/files/logo.png"
 				alt="The Goober Project Logo"
-				className="w-16 h-16 md:w-28 md:h-28"
+				className="w-16 h-16 md:w-24 md:h-24"
 			/>
 
 			<div className="text-center md:text-left">
