@@ -8,6 +8,18 @@
   "permissions": [
     "core:default",
     "opener:default",
-    "http:default"
+    "http:default",
+    "dialog:default",
+    {
+      "identifier": "http:default",
+      "allow": [
+        {
+          "url": "https://*.roblox.com/"
+        },
+        {
+          "url": "https://*.roproxy.com/"
+        }
+      ]
+    }
   ]
 }
