@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "the-ugc-tracker",
+  "productName": "The UGC Tracker",
   "version": "0.1.0",
   "identifier": "xyz.thegoober.tut",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "the-ugc-tracker",
+        "title": "The UGC Tracker",
         "width": 800,
         "height": 600
       }
