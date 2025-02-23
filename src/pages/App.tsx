@@ -9,7 +9,7 @@ import { writeTextFile } from "@tauri-apps/plugin-fs"
 import { useState } from "preact/hooks"
 import { type CatalogItemWithThumbnail, FullSearch } from "../lib/api";
 import RobuxIcon from "../components/robuxIcon";
-import SettingsStore from "../lib/store";
+import { getStore } from "../lib/store";
 
 interface FlaggedItem {
   AssetId: number,
@@ -27,10 +27,11 @@ function Searcher() {
   const [query, setQuery] = useState("")
 
   async function startKeywordSearch() {
+    const settings = await getStore()
     setImportant(true)
     setWindowType("LOADING")
 
-    const result = await FullSearch(query, await SettingsStore?.get("useGroups") ?? false)
+    const result = await FullSearch(query, await settings.get("useGroups") ?? false)
 
     if (result == false) {
       setWindowType("START")
