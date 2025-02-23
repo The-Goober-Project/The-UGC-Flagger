@@ -101,7 +101,7 @@ export async function SearchCatalog(keyword: string, cursor?: string): Promise<C
 	}
 }
 
-export async function FullSearch(keyword: string) {
+export async function FullSearch(keyword: string, searchGroup = false) {
 	const ItemsSearch = await SearchCatalog(keyword)
 	if (ItemsSearch == false || !ItemsSearch) return ItemsSearch
 
@@ -123,25 +123,28 @@ export async function FullSearch(keyword: string) {
 	console.log(`Got ${AllItems.length} items.`)
 
 	const finishedItems: CatalogItem[] = []
-	const searched: number[] = []
 
-	for(const Asset of AllItems){
-		finishedItems.push(Asset)
-		if(Asset.creatorType == "Group" && !searched.includes(Asset.creatorTargetId)){
-			console.log(`Searching group ${Asset.creatorName}`)
-			searched.push(Asset.creatorTargetId)
+	if(searchGroup){
+		const searched: number[] = []
 
-			const items = await SearchGroupAssets(Asset.creatorTargetId).catch(() => undefined)
-			if(items) {
-				const filter = items
-					.filter((v) => !finishedItems.find((a) => a.id == v.id))
-				console.log(`Got ${filter.length} items.`)
-				finishedItems.push(...filter)
+		for(const Asset of AllItems){
+			finishedItems.push(Asset)
+			if(Asset.creatorType == "Group" && !searched.includes(Asset.creatorTargetId)){
+				console.log(`Searching group ${Asset.creatorName}`)
+				searched.push(Asset.creatorTargetId)
+	
+				const items = await SearchGroupAssets(Asset.creatorTargetId).catch(() => undefined)
+				if(items) {
+					const filter = items
+						.filter((v) => !finishedItems.find((a) => a.id == v.id))
+					console.log(`Got ${filter.length} items.`)
+					finishedItems.push(...filter)
+				}
+				
+				await new Promise(resolve => setTimeout(resolve, 1000));
 			}
-			
-			await new Promise(resolve => setTimeout(resolve, 1000));
 		}
 	}
 
-	return finishedItems
+	return searchGroup ? finishedItems : AllItems
 }

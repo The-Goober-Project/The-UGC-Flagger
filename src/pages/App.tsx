@@ -8,6 +8,7 @@ import { message } from "@tauri-apps/plugin-dialog"
 import { useState } from "preact/hooks"
 import { type CatalogItemWithThumbnail, FullSearch } from "../lib/api";
 import RobuxIcon from "../components/robuxIcon";
+import SettingsStore from "../lib/store";
 
 function Searcher() {
   const [windowType, setWindowType] = useState<"REVIEW" | "START" | "LOADING">("START")
@@ -21,7 +22,7 @@ function Searcher() {
     setImportant(true)
     setWindowType("LOADING")
 
-    const result = await FullSearch(query)
+    const result = await FullSearch(query, await SettingsStore.get("useGroups"))
 
     if (result == false) {
       message(`The result you've entered in (${query}) is filtered!`, { title: "Search Failed", kind: "error" })
