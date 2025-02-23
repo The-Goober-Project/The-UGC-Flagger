@@ -125,7 +125,7 @@ function Searcher() {
               className={"w-32 h-auto bg-gray-200 rounded-lg"}
             />
             <div className="flex flex-col gap-2 justify-center items-center text-center bg-gray-100 rounded-md py-2 px-2">
-              <h1 className="font-bold text-lg">{reviewItems[reviewIdx].name}</h1>
+              <a className="font-bold text-lg hover:underline hover:cursor-pointer" href={`https://rblx.clothing/${reviewItems[reviewIdx].id}`} target="_blank">{reviewItems[reviewIdx].name}</a>
               <p className="flex gap-2">{reviewItems[reviewIdx].price == 0 ? "FREE" : (<><RobuxIcon /> {reviewItems[reviewIdx].price}</>)}</p>
               <p>By <Link url={`https://rblx.${reviewItems[reviewIdx].creatorType == "Group" ? "social" : "name"}/${reviewItems[reviewIdx].creatorTargetId}`}>{reviewItems[reviewIdx].creatorName}</Link></p>
             </div>
