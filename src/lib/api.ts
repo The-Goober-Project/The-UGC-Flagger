@@ -1,6 +1,6 @@
 import { fetch } from "@tauri-apps/plugin-http"
 
-interface CatalogItem {
+export interface CatalogItem {
 	id: number,
 	itemType: "Asset",
 	assetType: number,
@@ -25,14 +25,41 @@ interface CatalogItem {
 	hasResellers: boolean
 }
 
-interface CatalogSearchResponse {
+export interface CatalogItemWithThumbnail extends CatalogItem {
+	thumbnail?: string
+}
+
+export interface CatalogSearchResponse<T = CatalogItem> {
 	keyword: string,
 	previousPageCursor: string | null,
 	nextPageCursor: string | null,
-	data: CatalogItem[]
+	data: Array<T>
 }
 
-export async function SearchGroupAssets(GroupId: number, cursor?: string) {
+interface AssetImage {
+	targetId: number,
+	state: "Completed",
+	imageUrl: string,
+	version: string
+}
+
+async function GetAssetThumbnails(...Assets: string[]) {
+	const queryParams = new URLSearchParams({
+		assetIds: Assets.join(","),
+		format: "png",
+		isCircular: "false",
+		size: "150x150"
+	})
+
+	const resp: AssetImage[] = await fetch(`https://thumbnails.roblox.com/v1/assets?${queryParams.toString()}`)
+		.then((resp) => resp.json())
+		.then((resp) => resp.data)
+		.catch(() => undefined)
+
+	return resp
+}
+
+export async function SearchGroupAssets(GroupId: number, cursor?: string): Promise<CatalogItemWithThumbnail[]> {
 	const queryParams = new URLSearchParams({
 		creatorTargetId: `${GroupId}`,
 		limit: "30",
@@ -47,10 +74,12 @@ export async function SearchGroupAssets(GroupId: number, cursor?: string) {
 		.then((resp) => resp.json())
 		.catch((e) => {console.error(e); return undefined})
 
-	return resp.data
+	const thumbnails = await GetAssetThumbnails(...resp.data.map((v) => v.id.toString())) 
+
+	return resp.data.map((v) => ({...v, thumbnail: thumbnails.find((i) => i.targetId === v.id)?.imageUrl}))
 }
 
-export async function SearchCatalog(keyword: string, cursor?: string) {
+export async function SearchCatalog(keyword: string, cursor?: string): Promise<CatalogSearchResponse<CatalogItemWithThumbnail> | undefined | false> {
 	const queryParams = new URLSearchParams({
 		Keyword: keyword,
 		Limit: "30",
@@ -64,14 +93,19 @@ export async function SearchCatalog(keyword: string, cursor?: string) {
 	if (!resp) return undefined
 	if (resp.keyword !== keyword) return false
 
-	return resp
+	const thumbnails = await GetAssetThumbnails(...resp.data.map((v) => v.id.toString())) 
+
+	return {
+		...resp,
+		data: resp.data.map((v) => ({...v, thumbnail: thumbnails.find((i) => i.targetId === v.id)?.imageUrl}))
+	}
 }
 
 export async function FullSearch(keyword: string) {
 	const ItemsSearch = await SearchCatalog(keyword)
 	if (ItemsSearch == false || !ItemsSearch) return ItemsSearch
 
-	const AllItems: CatalogItem[] = [...ItemsSearch.data]
+	const AllItems: CatalogItemWithThumbnail[] = [...ItemsSearch.data]
 	if (ItemsSearch.nextPageCursor) {
 		const SecondPage = await SearchCatalog(keyword, ItemsSearch.nextPageCursor)
 		if (SecondPage) {
