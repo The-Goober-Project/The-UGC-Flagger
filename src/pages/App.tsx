@@ -63,7 +63,7 @@ function Searcher() {
   function flagItem() {
     const item = reviewItems[reviewIdx]
     if (item && !flaggedItems.find(v => v.AssetId == item.id)) {
-      flaggedItems.push({ AssetId: item.id, Name: item.name, Creator: item.creatorName })
+      setFlagged([...flaggedItems, { AssetId: item.id, Name: item.name, Creator: item.creatorName }])
     }
 
     nextItem()
