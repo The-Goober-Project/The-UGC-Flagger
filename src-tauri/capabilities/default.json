@@ -27,6 +27,8 @@
         "*"
       ]
     },
+    "process:allow-restart",
+    "process:allow-exit",
     "store:allow-save",
     "store:allow-load",
     "store:allow-get-store",
