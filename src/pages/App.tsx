@@ -35,6 +35,10 @@ function Searcher() {
       return setImportant(false)
     }
 
+    for(const Item of reviewItems){
+      if(Item.thumbnail){new Image().src = Item.thumbnail}
+    }
+
     setWindowType("REVIEW")
     setReviewItems(result)
     setReviewIdx(0)
