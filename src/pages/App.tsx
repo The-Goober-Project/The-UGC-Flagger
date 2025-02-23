@@ -139,7 +139,7 @@ function Searcher() {
 
         {windowType == "EXPORT" && (
           <div>
-            <p>You have reviewed {reviewIdx + 1} items{reviewItems[reviewIdx + 1] && "so far"}.</p>
+            <p>You have reviewed {reviewIdx + 1} items{reviewItems[reviewIdx + 1] && " so far"}.</p>
             <p>{flaggedItems.length} were flagged</p>
             {reviewItems[reviewIdx + 1] && (
               <a
