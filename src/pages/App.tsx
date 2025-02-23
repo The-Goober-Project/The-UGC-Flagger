@@ -49,6 +49,7 @@ function Searcher() {
     setWindowType("REVIEW")
     setReviewItems(result)
     setReviewIdx(0)
+    setFlagged([])
 
     setImportant(false)
   }
