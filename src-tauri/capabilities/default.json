@@ -20,6 +20,11 @@
           "url": "https://*.roproxy.com/"
         }
       ]
-    }
+    },
+    "store:allow-save",
+    "store:allow-load",
+    "store:allow-get-store",
+    "store:allow-set",
+    "store:default"
   ]
 }
