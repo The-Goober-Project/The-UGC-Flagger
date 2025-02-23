@@ -30,7 +30,7 @@ function Searcher() {
     setImportant(true)
     setWindowType("LOADING")
 
-    const result = await FullSearch(query, await SettingsStore.get("useGroups"))
+    const result = await FullSearch(query, await SettingsStore?.get("useGroups") ?? false)
 
     if (result == false) {
       setWindowType("START")

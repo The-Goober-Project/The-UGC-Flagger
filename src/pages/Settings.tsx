@@ -17,8 +17,8 @@ function Settings() {
 
   const getSettings = async () => {
     setSettings({
-      groupSearch: (await SettingsStore.get("useGroups")) ?? true,
-      githubPAT: await SettingsStore.get("githubPAT") ?? ""
+      groupSearch: (await SettingsStore!.get("useGroups")) ?? true,
+      githubPAT: await SettingsStore!.get("githubPAT") ?? ""
     })
     setLoaded(true)
   }
@@ -42,7 +42,7 @@ function Settings() {
           <Checkbox
             default={settings.groupSearch}
             onChecked={async (checked) => {
-              await SettingsStore.set("useGroups", checked)
+              await SettingsStore!.set("useGroups", checked)
             }}
           >
             Search Groups
@@ -59,7 +59,7 @@ function Settings() {
               className="blur-xs hover:blur-none"
               onChange={async (e) => {
                 if (e) {
-                  await SettingsStore.set("githubPAT", (e.target as HTMLInputElement).value)
+                  await SettingsStore!.set("githubPAT", (e.target as HTMLInputElement).value)
                 }
               }}
             />

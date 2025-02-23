@@ -1,5 +1,9 @@
-import {load} from "@tauri-apps/plugin-store"
+import { load, type Store } from "@tauri-apps/plugin-store";
 
-const SettingsStore = await load("store.json")
+let SettingsStore: Store | null = null;
 
-export default SettingsStore
+(async () => {
+  SettingsStore = await load("store.json");
+})();
+
+export default SettingsStore;
