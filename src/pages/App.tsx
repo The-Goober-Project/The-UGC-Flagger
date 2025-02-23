@@ -10,6 +10,8 @@ import { useState } from "preact/hooks"
 import { type CatalogItemWithThumbnail, FullSearch } from "../lib/api";
 import RobuxIcon from "../components/robuxIcon";
 import { getStore } from "../lib/store";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import {sendNotification} from "@tauri-apps/plugin-notification"
 
 interface FlaggedItem {
   AssetId: number,
@@ -46,6 +48,14 @@ function Searcher() {
 
     for (const Item of reviewItems) {
       if (Item.thumbnail) { new Image().src = Item.thumbnail }
+    }
+
+    const wind = getCurrentWindow()
+    if((await wind.isMinimized()) || !(await wind.isFocused())){
+      sendNotification({
+        title: "Item collection",
+        body: `All items have been collected and are ready to review.`
+      })
     }
 
     setWindowType("REVIEW")

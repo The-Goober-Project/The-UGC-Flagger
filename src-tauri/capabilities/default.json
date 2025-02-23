@@ -34,6 +34,7 @@
     "store:allow-get-store",
     "store:allow-set",
     "store:default",
-    "fs:default"
+    "fs:default",
+    "notification:default"
   ]
 }
