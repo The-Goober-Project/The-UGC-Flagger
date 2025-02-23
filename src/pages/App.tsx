@@ -3,7 +3,8 @@ import Button from "../components/button";
 import Input from "../components/input";
 import Link from "../components/link";
 import TitleCard from "../components/title";
-import { message } from "@tauri-apps/plugin-dialog"
+import { message, save } from "@tauri-apps/plugin-dialog"
+import { writeTextFile } from "@tauri-apps/plugin-fs"
 
 import { useState } from "preact/hooks"
 import { type CatalogItemWithThumbnail, FullSearch } from "../lib/api";
@@ -149,6 +150,39 @@ function Searcher() {
                 You have {reviewItems.length - reviewIdx - 1} items left to review. Go back?
               </a>
             )}
+
+            <div className="bg-gray-300 w-full h-px my-4" />
+
+            <Button
+              disabled={inImportantAction}
+              onClick={async () => {
+                setImportant(true)
+                const path = await save({
+                  filters: [
+                    {
+                      name: "Text File",
+                      extensions: ["txt"]
+                    },
+                    {
+                      name: "JSON File",
+                      extensions: ["json"]
+                    }
+                  ],
+                  title: "Export Search Results"
+                })
+
+                if (path) {
+                  const ext = path?.split(".").pop()
+                  if (ext == "txt") {
+                    await writeTextFile(path, `These are the manual flags for search query "${query}":\n\n` + flaggedItems.map((v) => `https://rblx.clothing/${v.AssetId} - ${v.Name} by ${v.Creator}`).join("\n"))
+                  } else if (ext == "json") {
+                    await writeTextFile(path, JSON.stringify(flaggedItems.map((v) => ({...v, Creator: undefined})), null, 2))
+                  }
+                }
+
+                setImportant(false)
+              }}
+            >Save As File</Button>
           </div>
         )}
 
