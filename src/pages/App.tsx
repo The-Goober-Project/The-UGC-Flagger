@@ -25,10 +25,12 @@ function Searcher() {
     const result = await FullSearch(query, await SettingsStore.get("useGroups"))
 
     if (result == false) {
+      setWindowType("START")
       message(`The result you've entered in (${query}) is filtered!`, { title: "Search Failed", kind: "error" })
       return setImportant(false)
     }
     if (!result) {
+      setWindowType("START")
       message(`Something else errored while trying to commence the search`, { title: "Search Failed", kind: "error" })
       return setImportant(false)
     }
