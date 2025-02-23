@@ -10,12 +10,19 @@ import { type CatalogItemWithThumbnail, FullSearch } from "../lib/api";
 import RobuxIcon from "../components/robuxIcon";
 import SettingsStore from "../lib/store";
 
+interface FlaggedItem {
+  AssetId: number,
+  Name: string,
+  Creator: string
+}
+
 function Searcher() {
-  const [windowType, setWindowType] = useState<"REVIEW" | "START" | "LOADING">("START")
+  const [windowType, setWindowType] = useState<"REVIEW" | "START" | "LOADING" | "EXPORT">("START")
   const [reviewItems, setReviewItems] = useState<Array<CatalogItemWithThumbnail>>([])
   const [reviewIdx, setReviewIdx] = useState<number>(0)
 
   const [inImportantAction, setImportant] = useState(false)
+  const [flaggedItems, setFlagged] = useState<Array<FlaggedItem>>([])
   const [query, setQuery] = useState("")
 
   async function startKeywordSearch() {
@@ -35,8 +42,8 @@ function Searcher() {
       return setImportant(false)
     }
 
-    for(const Item of reviewItems){
-      if(Item.thumbnail){new Image().src = Item.thumbnail}
+    for (const Item of reviewItems) {
+      if (Item.thumbnail) { new Image().src = Item.thumbnail }
     }
 
     setWindowType("REVIEW")
@@ -47,9 +54,19 @@ function Searcher() {
   }
 
   function nextItem() {
+    if (!reviewItems[reviewIdx + 1]) return setWindowType("EXPORT")
     setImportant(true)
     setReviewIdx(reviewIdx + 1)
     setTimeout(() => setImportant(false), 400)
+  }
+
+  function flagItem() {
+    const item = reviewItems[reviewIdx]
+    if (item && !flaggedItems.find(v => v.AssetId == item.id)) {
+      flaggedItems.push({ AssetId: item.id, Name: item.name, Creator: item.creatorName })
+    }
+
+    nextItem()
   }
 
   return (
@@ -113,9 +130,24 @@ function Searcher() {
             </div>
             <div className="flex gap-2 w-full">
               <Button onClick={() => nextItem()} disabled={inImportantAction}>Next</Button>
-              <Button variant="Danger" onClick={() => nextItem()} disabled={inImportantAction}>Flag</Button>
+              <Button variant="Danger" onClick={() => flagItem()} disabled={inImportantAction}>Flag</Button>
             </div>
-            <p class="text-xs">{reviewIdx + 1}/{reviewItems.length} items | <a class="hover:underline hover:cursor-pointer">Conclude Search</a></p>
+            <p class="text-xs">{reviewIdx + 1}/{reviewItems.length} items | <a class="hover:underline hover:cursor-pointer" onClick={() => setWindowType("EXPORT")}>Conclude Search</a></p>
+          </div>
+        )}
+
+        {windowType == "EXPORT" && (
+          <div>
+            <p>You have reviewed {reviewIdx + 1} items{reviewItems[reviewIdx + 1] && "so far"}.</p>
+            <p>{flaggedItems.length} were flagged</p>
+            {reviewItems[reviewIdx + 1] && (
+              <a
+                class="hover:underline hover:cursor-pointer font-bold"
+                onClick={() => setWindowType("REVIEW")}
+              >
+                You have {reviewItems.length - reviewIdx - 1} items left to review. Go back?
+              </a>
+            )}
           </div>
         )}
 
