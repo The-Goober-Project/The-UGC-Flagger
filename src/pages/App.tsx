@@ -3,12 +3,34 @@ import Button from "../components/button";
 import Input from "../components/input";
 import Link from "../components/link";
 import TitleCard from "../components/title";
+import {message} from "@tauri-apps/plugin-dialog"
 
 import { useState } from "preact/hooks"
+import { FullSearch } from "../lib/api";
 
 function Searcher() {
-  const [reviewMode, setReviewing] = useState(true)
+  // const [reviewMode, setReviewing] = useState(true)
+  const [inImportantAction, setImportant] = useState(false)
   const [query, setQuery] = useState("")
+
+  async function startKeywordSearch(){
+    setImportant(true)
+
+    const result = await FullSearch(query)
+     
+    if(result == false) {
+      message(`The result you've entered in (${query}) is filtered!`, {title: "Search Failed", kind: "error"})
+      return setImportant(false)
+    }
+    if(!result){
+      message(`Something else errored while trying to commence the search`, {title: "Search Failed", kind: "error"})
+      return setImportant(false)
+    }
+
+    console.log(result)
+
+    setImportant(false)
+  }
 
   return (
     <main className="flex justify-center items-center h-screen">
@@ -30,9 +52,12 @@ function Searcher() {
           <Button
             variant="Primary"
             className="w-9/12 mb-2"
+            onClick={() => startKeywordSearch()}
+            disabled={inImportantAction}
           >
             Start Search
           </Button>
+
           <Button
             variant="Casual"
             className="w-4/12"
