@@ -153,36 +153,51 @@ function Searcher() {
 
             <div className="bg-gray-300 w-full h-px my-4" />
 
-            <Button
-              disabled={inImportantAction}
-              onClick={async () => {
-                setImportant(true)
-                const path = await save({
-                  filters: [
-                    {
-                      name: "Text File",
-                      extensions: ["txt"]
-                    },
-                    {
-                      name: "JSON File",
-                      extensions: ["json"]
+            <div class="flex-col flex items-center space-y-2">
+              <Button
+                disabled={inImportantAction}
+                onClick={async () => {
+                  setImportant(true)
+                  const path = await save({
+                    filters: [
+                      {
+                        name: "Text File",
+                        extensions: ["txt"]
+                      },
+                      {
+                        name: "JSON File",
+                        extensions: ["json"]
+                      }
+                    ],
+                    title: "Export Search Results"
+                  })
+
+                  if (path) {
+                    const ext = path?.split(".").pop()
+                    if (ext == "txt") {
+                      await writeTextFile(path, `These are the manual flags for search query "${query}":\n\n` + flaggedItems.map((v) => `https://rblx.clothing/${v.AssetId} - ${v.Name} by ${v.Creator}`).join("\n"))
+                    } else if (ext == "json") {
+                      await writeTextFile(path, JSON.stringify(flaggedItems.map((v) => ({ ...v, Creator: undefined })), null, 2))
                     }
-                  ],
-                  title: "Export Search Results"
-                })
-
-                if (path) {
-                  const ext = path?.split(".").pop()
-                  if (ext == "txt") {
-                    await writeTextFile(path, `These are the manual flags for search query "${query}":\n\n` + flaggedItems.map((v) => `https://rblx.clothing/${v.AssetId} - ${v.Name} by ${v.Creator}`).join("\n"))
-                  } else if (ext == "json") {
-                    await writeTextFile(path, JSON.stringify(flaggedItems.map((v) => ({...v, Creator: undefined})), null, 2))
                   }
-                }
 
-                setImportant(false)
-              }}
-            >Save As File</Button>
+                  setImportant(false)
+                }}
+              >
+                Save As File
+              </Button>
+
+              <Button
+                variant="Danger"
+                disabled={inImportantAction}
+                onClick={() => {
+                  setWindowType("START")
+                  setQuery("")
+                }}
+              >
+                New Search
+              </Button>
+            </div>
           </div>
         )}
 
