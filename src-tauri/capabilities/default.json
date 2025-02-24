@@ -18,6 +18,9 @@
         },
         {
           "url": "https://*.roproxy.com/"
+        },
+        {
+          "url": "https://api.github.com/gists"
         }
       ]
     },
@@ -35,6 +38,7 @@
     "store:allow-set",
     "store:default",
     "fs:default",
-    "notification:default"
+    "notification:default",
+    "clipboard-manager:allow-write-text"
   ]
 }

@@ -11,7 +11,9 @@ import { type CatalogItemWithThumbnail, FullSearch } from "../lib/api";
 import RobuxIcon from "../components/robuxIcon";
 import { getStore } from "../lib/store";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import {sendNotification} from "@tauri-apps/plugin-notification"
+import { sendNotification } from "@tauri-apps/plugin-notification"
+import { fetch } from "@tauri-apps/plugin-http";
+import {writeText} from "@tauri-apps/plugin-clipboard-manager"
 
 interface FlaggedItem {
   AssetId: number,
@@ -23,6 +25,7 @@ function Searcher() {
   const [windowType, setWindowType] = useState<"REVIEW" | "START" | "LOADING" | "EXPORT">("START")
   const [reviewItems, setReviewItems] = useState<Array<CatalogItemWithThumbnail>>([])
   const [reviewIdx, setReviewIdx] = useState<number>(0)
+  const [githubPAT, setGithubPAT] = useState<string | null>(null)
 
   const [inImportantAction, setImportant] = useState(false)
   const [flaggedItems, setFlagged] = useState<Array<FlaggedItem>>([])
@@ -51,11 +54,19 @@ function Searcher() {
     }
 
     const wind = getCurrentWindow()
-    if((await wind.isMinimized()) || !(await wind.isFocused())){
+    if ((await wind.isMinimized()) || !(await wind.isFocused())) {
       sendNotification({
         title: "Item collection",
         body: `All items have been collected and are ready to review.`
       })
+    }
+
+    setGithubPAT(null)
+
+    const PAT = await settings.get<string>("githubPAT")
+
+    if (PAT && PAT.trim() !== "") {
+      setGithubPAT(PAT)
     }
 
     setWindowType("REVIEW")
@@ -165,38 +176,80 @@ function Searcher() {
             <div className="bg-gray-300 w-full h-px my-4" />
 
             <div class="flex-col flex items-center space-y-2">
-              <Button
-                disabled={inImportantAction}
-                onClick={async () => {
-                  setImportant(true)
-                  const path = await save({
-                    filters: [
-                      {
-                        name: "Text File",
-                        extensions: ["txt"]
-                      },
-                      {
-                        name: "JSON File",
-                        extensions: ["json"]
+              <div class="flex items-center space-x-2">
+                <Button
+                  disabled={inImportantAction}
+                  onClick={async () => {
+                    setImportant(true)
+                    const path = await save({
+                      filters: [
+                        {
+                          name: "Text File",
+                          extensions: ["txt"]
+                        },
+                        {
+                          name: "JSON File",
+                          extensions: ["json"]
+                        }
+                      ],
+                      title: "Export Search Results"
+                    })
+
+                    if (path) {
+                      const ext = path?.split(".").pop()
+                      if (ext == "txt") {
+                        await writeTextFile(path, `These are the manual flags for search query "${query}":\n\n` + flaggedItems.map((v) => `https://rblx.clothing/${v.AssetId} - ${v.Name} by ${v.Creator}`).join("\n"))
+                      } else if (ext == "json") {
+                        await writeTextFile(path, JSON.stringify(flaggedItems.map((v) => ({ ...v, Creator: undefined })), null, 2))
                       }
-                    ],
-                    title: "Export Search Results"
-                  })
-
-                  if (path) {
-                    const ext = path?.split(".").pop()
-                    if (ext == "txt") {
-                      await writeTextFile(path, `These are the manual flags for search query "${query}":\n\n` + flaggedItems.map((v) => `https://rblx.clothing/${v.AssetId} - ${v.Name} by ${v.Creator}`).join("\n"))
-                    } else if (ext == "json") {
-                      await writeTextFile(path, JSON.stringify(flaggedItems.map((v) => ({ ...v, Creator: undefined })), null, 2))
                     }
-                  }
 
-                  setImportant(false)
-                }}
-              >
-                Save As File
-              </Button>
+                    setImportant(false)
+                  }}
+                >
+                  Save As File
+                </Button>
+
+                {githubPAT && (
+                  <Button
+                    variant="Casual"
+                    disabled={inImportantAction}
+                    onClick={async () => {
+                      setImportant(true)
+                      const response = await fetch("https://api.github.com/gists", {
+                        headers: {
+                          Authorization: `Bearer ${githubPAT}`,
+                          Accept: "application/json"
+                        },
+                        method: "POST",
+                        body: JSON.stringify({
+                          description: `Automatically created by The UGC Tracker.\n\nKeyword: ${query}`,
+                          public: false,
+                          files: {
+                            ["scan.json"]: {
+                              content: JSON.stringify(flaggedItems.map((v) => ({ ...v, Creator: undefined })), null, 2)
+                            }
+                          }
+                        })
+                      })
+                        .then((resp) => resp.json())
+                        .catch((e) => {console.error(e); return undefined})
+
+                      if (!response) {
+                        await message("Something errored while trying to export the gist!", {kind: "error"})
+                        return setImportant(false)
+                      }
+                      
+                      await writeText(response.files["scan.json"].raw_url)
+                      await message("Copied URL to clipboard.", { title: "Exported!", kind: "info" })
+
+                      setImportant(false)
+                    }}
+                  >
+                    Export to GitHub
+                  </Button>
+                )}
+              </div>
 
               <Button
                 variant="Danger"
