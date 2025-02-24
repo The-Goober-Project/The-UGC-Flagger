@@ -2,7 +2,7 @@ import { MoveLeft } from "lucide-preact"
 import { route } from "preact-router";
 import Checkbox from "../components/checkbox";
 import { useState, useEffect } from "preact/hooks";
-import SettingsStore, { getStore } from "../lib/store";
+import { getStore } from "../lib/store";
 import Link from "../components/link";
 import Input from "../components/input";
 import { check, type Update } from "@tauri-apps/plugin-updater"
